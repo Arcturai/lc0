@@ -37,7 +37,6 @@
 #include "neural/onnx/adapters.h"
 #include "neural/onnx/builder.h"
 #include "neural/shared/policy_map.h"
-#include "neural/shared/attention_policy_map.h"
 #include "proto/net.pb.h"
 #include "utils/exception.h"
 
@@ -195,18 +194,6 @@ std::vector<int> MakePolicyMap() {
 }
 }  // namespace
 
-namespace {
-std::vector<int> MakeAttnPolicyMap() {
-  std::vector<int> policy_map(1858);
-  int idx = 0;
-  for (const auto& mapping : AttnPolicyMap) {
-    if (mapping > -1) policy_map[mapping] = idx;
-    idx++;
-  }
-  return policy_map;
-}
-}  // namespace
-
 void Converter::MakePolicyHead(pblczero::OnnxModel* onnx, OnnxBuilder* builder,
                                const std::string& input,
                                const LegacyWeights& weights) {
@@ -228,23 +215,6 @@ void Converter::MakePolicyHead(pblczero::OnnxModel* onnx, OnnxBuilder* builder,
     builder->AddOutput(output, {-1, 1858}, GetDataType());
     onnx->set_output_policy(output);
   } else {
-
-
-//    // Attention policy head.
-//    auto flow = pass
-//    flow = builder->Reshape(  // needs two inputs and two outputs
-//        "/policy/flatten", flow,
-//        builder->AddInitializer("/const/policy_shape",
-//                                Int64OnnxConst({-1, 64*64 + 8*24}, {2})));
-//    auto output = builder->Gather(
-//        options_.output_policy_head, flow,
-//        builder->AddInitializer("/const/mapping_table",
-//                                Int32OnnxConst(MakeAttnPolicyMap(), {1858})),
-//        {1});
-//    builder->AddOutput(output, {-1, 1858}, GetDataType());
-//    onnx->set_output_policy(output);
-
-
     // Dense policy head.
     throw Exception(
         "The old fully connected policy head is not implemented due to "
